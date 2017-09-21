@@ -1,0 +1,1214 @@
+swagger: '2.0'
+
+info:
+  title: Manufacturing Data Service (MDS)
+  version: "2.0"
+  description: |
+    Manufacturing solution database API's.
+    
+    # Standards
+    This API following the JSON API specs 1.0 documented
+    [here](http://jsonapi.org/format/)
+    
+    # Http Verbs
+    
+    |Verb         | Description
+    | ------      | -------------------------------------------------------------------------------------------------------
+    | `GET`       |  Used to select one or more items. Success returns 200 status code with json result item(s) in body.
+    | `POST`      |  Used to create a new item. Success returns 201 status code with newly created json item in body.
+    | `PATCH`     |  Used to update an item. Success returns 200 status code with updated json item in body.
+    | `DELETE`    |  Used to delete an item. Success returns 204 status code with no body.
+
+    # Pagination
+    JSON API is agnostic about the pagination strategy used by a server.
+    Effective pagination strategies include (but are not limited to):
+    page-based, offset-based, and cursor-based. This API uses the page
+    based strategy with parameters page[number] and page[size].
+
+    | Parameter    | Description |
+    | ------       | ------   |
+    | page[number] | Requested page number |
+    | page[size]   | Requested page size |
+
+    *Note*: The example query parameters above use unencoded [ and ] characters simply for readability. In practice, these characters must be percent-encoded, per the requirements in RFC 3986
+
+    # URL Syntax
+
+    ```
+    https://{domain}/mdb/{version}/{resource}
+    https://{domain}/mdb/{version}/{resource}/{resourceId}
+    https://{domain}/mdb/{version}/{resource}/{resourceId},{resourceId}
+    https://{domain}/mdb/{version}/{resource}/{resourceId}/relationships/{resource}
+    ```
+
+    All endpoints begin with <code>/mdb/{version}/</code>
+
+    * Production URL: https://developer.api.autodesk.com/
+    * Beta URL: https://developer-stg.api.autodesk.com/
+
+    Example:
+    <code>https://developer-stg.api.autodesk.com/mdb/v2/reviewableEntities</code>
+
+
+    # Headers
+    All api calls require the following headers:
+
+    * <b>Authorization</b>: `Bearer: <token>`<br>
+      A guest or member authorization token as provided by Forge Login workflow.
+      See Auth section on how to generate a guest/member token. Access to various API''s
+      depends on the token access levels.
+    * <b>Content-Type</b>: `application/vnd.api+json`<br>
+      Clients MUST send all `JSON API` data in request documents with the header
+      `Content-Type: application/vnd.api+json` without any media type parameters.
+    * <b>Accept</b>: `application/vnd.api+json`<br>
+      If not specified otherwise the response is also returned in a `JSON API` conformant
+      way. Exceptions might be returning the binary content of a file.
+
+    #Error Objects
+    Error objects provide additional information about problems encountered while
+    performing an operation. Error objects MUST be returned as an array keyed by errors
+    in the top level of a JSON API document.
+
+    ```
+    {
+      "errors": [{
+        "status": "400 Bad Method",
+        "id": "a unique identifier for this particular occurrence of the problem",
+        "code": "10234",
+        "title": "Wrong Material ID",
+        "detail": "Material ID 15234523 does not exist in the database",
+      }]
+    }
+    ```
+
+securityDefinitions:
+  oauth2_access_code:
+    type: oauth2
+    authorizationUrl: https://developer.api.autodesk.com/authentication/v1/authorize
+    tokenUrl: https://developer.api.autodesk.com/authentication/v1/gettoken
+    flow: accessCode
+    scopes:
+      'data:read':   read your data
+      'data:write':  modify your data
+      'data:create': create new data
+    x-authentication_context: user context required
+  oauth2_implicit:
+    type: oauth2
+    authorizationUrl: https://developer.api.autodesk.com/authentication/v1/authorize
+    flow: implicit
+    scopes:
+      'data:read':   read your data
+      'data:write':  modify your data
+      'data:create': create new data
+    x-authentication_context: user context required
+  oauth2_application:
+    type: oauth2
+    tokenUrl: https://developer.api.autodesk.com/authentication/v1/gettoken
+    flow: application
+    scopes:
+      'data:read': read application accessible data
+      'data:write': write application accessible data
+      'data:create': create application accessible data
+    x-authentication_context: application context required
+
+host: developer.api.autodesk.com
+
+basePath: /mdb/v2
+
+schemes:
+  - https
+
+consumes:
+  - application/vnd.api+json
+  - application/json
+
+produces:
+  - application/vnd.api+json
+  - application/json
+
+# -------------------------------------------------------------------
+# Paths
+# -------------------------------------------------------------------
+paths: 
+  /reviewableEntities:
+    x-summary: Reviewable Entities
+    x-description: When entity is ready to be published, Library manager contacts MDS team (through a UX workflow to submit entity to be added to global registry) to register entity information in global registry. Then MDS team review multiple things and finally APPROVE or DENY entity to be reviewed.
+    post:
+      summary: Add entities for reviewing
+      description:
+          
+            <li>Library MUST BE released to MDS clientId (<a href="mailto:forge.mdb@autodesk.com" target="_top">Mail to MDS</a>) and entity MUST BE published before calling this API. Please refer <a href="http://docs.forgecontent.apiary.io/#reference/library/contentv1librarieslibraryid/patch">ForgeContent documentation</a> for how to release a library.</li><br>
+            <li>"status" has possible value PENDING and PRE_SUBMIT. If user just wants to categorize the content in global registry instead of submitting the content for review, "status" will be set to PRE_SUBMIT. "status" must be set to PENDING when content is submitted and ready to be reviewed.</li>
+            <li>"nodeName" is a list of node name showing the node hiarachy inside corresponding libraries. It's a comma separate list. If node doesn't not exist, add node name in the list. For example, the content will be saved under MATERIAL global registry library -> node STEEL -> node SPECIFIC STEEL. "nodeName" will be set to "STEEL,SPECIFIC_STEEL". If the content will be saved under MATERIAL global registry library -> node STEEL -> node SPECIFIC STEEL, and need to add a new node NEW STEEL, "nodeName" will be set to "STEEL,SPECIFIC_STEEL,NEW_STEEL". </li>
+            <li>"registryContentId" is set if the new material facetName will be added to an existing content in global registry.</li>
+            <li>"contentName" is the name of registered content in global registry.</li>
+
+      parameters:
+        - $ref: '#/parameters/reviewableEntitiesPostPayload'
+      responses:
+        '201': { $ref: '#/responses/reviewableEntities' }
+      security:
+        [ { oauth2_access_code: [ 'data:write' ] }, { oauth2_implicit: [ 'data:write' ] },{ oauth2_application: [ 'data:write' ] } ]
+
+    put:
+      summary:  Update status of entities which are queued for reviewing
+      description:
+          
+          <ul>
+            <li>This API is only for MDS admin.</li>
+
+      parameters:
+        - $ref: '#/parameters/reviewableEntitiesPutPayload'
+      responses:
+        '201': { $ref: '#/responses/reviewableEntities' }
+      security:
+        [ { oauth2_access_code: [ 'data:write' ] }, { oauth2_implicit: [ 'data:write' ] },{ oauth2_application: [ 'data:write' ] } ]
+
+  /registryEntries:
+    x-summary: Registry Entries
+    x-description: (Internal use only) Registry admin add facet in global registry, or update global registry.
+    post:
+      summary: Add new facet in global registry. If registry doesn't exist, create a new registry and add facet.
+      description:
+        Registry admin adds facet in global registry.
+
+      parameters:
+        - $ref: '#/parameters/registryPostPayload'
+      responses:
+        '201': { $ref: '#/responses/registry' }
+      security:
+        [ { oauth2_access_code: [ 'data:create' ] }, { oauth2_implicit: [ 'data:create' ] },{ oauth2_application: [ 'data:create' ] } ]
+      
+    put:
+      summary: Update global registry
+      description:
+        Registry admin updates global registry including facets. 
+
+      parameters:
+        - $ref: '#/parameters/registryPutPayload'
+      responses:
+        '201': { $ref: '#/responses/registry' }
+      security:
+        [ { oauth2_access_code: [ 'data:write' ] }, { oauth2_implicit: [ 'data:write' ] },{ oauth2_application: [ 'data:write' ] } ]
+        
+  /contents:
+    x-summary: Search Data
+    x-desription: Search library data of a given global registry type for the specified facet name(s)
+    get:
+      summary: Search Data
+      description: |
+        Perform a search in the libraries registered in forge content for the facet name(s) specified in the query parameters
+        
+        * The registry type identifies the global registries where to perform the search, i.e. MATERIALS, or MACHINES.
+        
+        * The facet name further narrow down the sets of data the client is interested in. An example of a facet name is 'additive', for which properties specific to additive manufacturing would be returned in case of the MATERIALS global registry.
+        
+        * If the extension.data section includes references of type customTypes:autodesk.core:reference-1.0.0, it is possible to include the referenced objects in the response under the included section when passing the query paramater
+        include[contents]=references.<reference_name>. For example: include[contents]=references.machines, include[contents]=references.processes</li>
+        
+        * This API also supports complex queries when using the parameter filter[contents][query].
+        
+        * "extension.data" can be replaced by "~" in query and filter parameter.
+        
+        * This API supports unit conversion when filter[units][...] is passing. The result is converted into target units. This feature utilizes JSR 363 and adheres to UCUM standards for strict adherence to unit symbols. For example, when filter[units][postSizeAt15mmDeviation]=[in_i] is passed, in search result, postSizeAt15mmDeviation is returned in "inches" unit. 
+        UCUM Supported Units(https://github.com/unitsofmeasurement/uom-systems/blob/master/ucum-java8/src/main/java/systems/uom/ucum/UCUM.java).
+        UCUM Unit Symbols -Case Sensitive(https://github.com/unitsofmeasurement/uom-systems/blob/master/ucum-java8/src/main/resources/systems/uom/ucum/format/UCUMFormat_CS.properties)
+        
+        Here are some examples of search query:
+        ```
+        /contents?filter[contents][extension.data.registryType]=MATERIALS&filter[contents][facetName]=physical
+        ```
+        To add filter[contents][...] parameter
+        ```
+        /contents?filter[contents][extension.data.registryType]=MATERIALS&filter[contents][facetName]=physical&filter[contents][extension.data.facets.physical.extension.data.specificHeat.value]=410
+        /contents?filter[contents][extension.data.registryType]=MATERIALS&filter[contents][facetName]=physical&filter[contents][~.facets.physical.~.specificHeat.value]=410
+        ```
+        filter[contents][query]
+        ```
+        /contents?filter[contents][extension.data.registryType]=MATERIALS&filter[contents][facetName]=additive&filter[contents][query]=Molecule
+        /contents?filter[contents][extension.data.registryType]=MATERIALS&filter[contents][facetName]=physical&filter[contents][extension.data.facets.physical.extension.data.specificHeat.value]=410&filter[contents][query]=extension.data.facets.physical.extension.data.specificHeat.value>400 AND ~.facets.physical.~.density.value <10000 AND NOT ~.facets.physical.~.category: PLASTIC
+        ```
+        To search for "Ultimaker 2+", please use
+        ```
+        /contents?filter[contents][extension.data.facets.additive.extension.data.references.machines.extension.data.name]=Ultimaker 2%252B
+        ```
+        To search for a range with min and max value
+        ```
+        /contents?filter[contents][extension.data.registryType]=MATERIALS&filter[contents][facetName]=additive&filter[contents][query]=(extension.data.facets.additive.extension.data.solution.flexuralStrength.testValue.min>1) AND (NOT extension.data.facets.additive.extension.data.solution.flexuralStrength.testValue.min<1) AND (extension.data.facets.additive.extension.data.solution.flexuralStrength.testValue.max<100) AND (NOT extension.data.facets.additive.extension.data.solution.flexuralStrength.testValue.max>100)
+        ```
+        To convert unit in search result
+        ```
+        /contents?filter[contents][extension.data.registryType]=MATERIALS&filter[contents][facetName]=additive&filter[contents][version]=tip&filter[units][temperature]=Cel&filter[units][youngsModulusCompression]=MPa&filter[units][materialBulkDensity]=g/cm3&filter[units][holeSizeAt5mmDeviation]=mm&filter[units][postSizeAt15mmDeviation]=[in_i]
+        ```
+        To sort
+        ```
+        /contents?sort[contents][createTime]=desc
+        /contents?sort[contents][lastModifiedTime]=desc
+        /contents?sort[contents][extension.data.facets.additive.extension.data.displayName]=asc
+        ```
+        To include process and machine data
+        ```
+        /contents?filter[contents][extension.data.registryType]=MATERIALS&filter[contents][facetName]=additive&include[contents]=references.processes&include[contents]=references.machines
+        ```
+        Pagination
+        ```
+        /contents?filter[contents][extension.data.registryType]=MATERIALS&filter[contents][facetName]=physical&page[number]=1&page[size]=2
+        ```
+
+
+
+      parameters:
+        - $ref: '#/parameters/query_filter_contents_registry_type'
+        - $ref: '#/parameters/query_filter_contents_facet_name'
+        - $ref: '#/parameters/query_filter_include_contents'
+        - $ref: '#/parameters/query_filter_contents_query'
+        - $ref: '#/parameters/query_filter_units'
+        - $ref: '#/parameters/query_filter_page_size'
+        - $ref: '#/parameters/query_filter_page_number'
+      responses:
+        '200': { $ref: '#/responses/contentsResponse' }
+        '400': { $ref: '#/responses/bad_input' }
+        '403': { $ref: '#/responses/forbidden' }
+      security:
+        [ { oauth2_access_code: [ 'data:read' ] }, { oauth2_implicit: [ 'data:read' ] },{ oauth2_application: [ 'data:read' ] } ]
+      tags: ["Library Search"]
+
+# -------------------------------------------------------------------
+# Definitions
+# -------------------------------------------------------------------
+definitions:
+  json_api_error:
+    allOf:
+      - type: object
+        required: [ errors ]
+        properties:
+          errors:
+            type: array
+            items:
+              type: object
+              required: [ id, status, detail ]
+              properties:
+                id: { type: string, description: "a unique identifier for this particular occurrence of the problem" }
+                status: { type: string, description: "the HTTP status code applicable to this problem, expressed as a string value" }
+                code: { type: string, description: "an application-specific error code, expressed as a string value" }
+                title: { type: string, description: "a short, human-readable summary of the problem that SHOULD NOT change from occurrence to occurrence of the problem, except for purposes of localization" }
+                detail: { type: string, description: "a human-readable explanation specific to this occurrence of the problem. Like title, this field's value can be localized" }
+                meta: { type: object, description: "a meta object containing non-standard meta-information about the error" }
+                links:
+                  type: object
+                  description: "a link that leads to further details about this particular occurrence of the problem"
+                  required: [ about ]
+                  properties:
+                    about: { $ref: '#/definitions/json_api_link' }
+
+  json_api_collection:
+    type: object
+    required: [ data, links, meta ]
+    properties:
+      data: { type: array, items: { $ref: '#/definitions/json_api_resource' } }
+      links:
+        allOf:
+        - $ref: '#/definitions/json_api_link_self'
+        - $ref: '#/definitions/json_api_links_paging'
+      meta: { $ref: '#/definitions/base_meta_paging' }
+
+  json_api_object_id:
+    type: object
+    required: [ id ]
+    properties:
+      id: { type: string, description: 'resource id' }
+
+  json_api_object_type:
+    type: object
+    required: [ type,attributes ]
+    properties:
+      "type": { type: string, description: 'resource type' }
+      "attributes": { type: object, description: 'different attributes' }
+
+  json_api_type_id:
+    allOf:
+    - $ref: '#/definitions/json_api_object_id'
+    - $ref: '#/definitions/json_api_object_type'
+
+  json_api_resource:
+    allOf:
+    - $ref: '#/definitions/json_api_type_id'
+    - type: object
+      properties:
+        attributes: { $ref: '#/definitions/json_api_attributes' }
+        relationships: { $ref: '#/definitions/json_api_relationships' }
+
+  json_api_attributes:
+    type: object
+    description: 'resource specific attributes/properties'
+
+  json_api_relationships:
+    type: object
+    description: 'resource specific relationships'
+
+  json_api_link:
+    type: object
+    required: [ href ]
+    properties:
+      href: { type: string }
+
+  json_api_link_self:
+    type: object
+    description: 'provides the identity link (a link to itself)'
+    required: [ self ]
+    properties:
+      self: { $ref: '#/definitions/json_api_link' }
+
+  json_api_links_paging:
+    type: object
+    required: [ first ]
+    properties:
+      first: { $ref: '#/definitions/json_api_link' }
+      last: { $ref: '#/definitions/json_api_link' }
+      previous: { $ref: '#/definitions/json_api_link' }
+      next: { $ref: '#/definitions/json_api_link' }
+
+  base_meta_paging:
+    type: object
+    required: [ "paging" ]
+    properties:
+      "paging":
+        required: [ "totalItems", "pageSize", "currentPage", "totalPages" ]
+        properties:
+          "totalItems": { type: integer }
+          "pageSize": { type: integer }
+          "currentPage": { type: integer }
+          "totalPages": { type: integer }   
+  
+  reviewableEntitiesData:
+    type: object
+    required: [ "type","attributes" ]
+    properties:
+      "type": { type: string }
+      "attributes": 
+        type : object
+        required: [ "facets" ]
+        properties: 
+          "facets": 
+            type : array
+            items : 
+              type : object
+              required : [ "type","facetName","contentId","libraryId","contentVersion","nodeName" ]
+              properties: 
+                "type": {type : string, enum : ["MATERIALS","MACHINES"]}
+                "facetName": {type: string }
+                "contentId": {type : string}
+                "libraryId": {type: string}
+                "contentVersion": {type: integer}
+                "nodeName": {type: string}
+                "registryContentId": {type: string}
+                "contentName": {type: string}
+                
+  registryData:
+    type: object
+    required: [ "type","attributes" ]
+    properties:
+      "type": { type: string }
+      "id": { type: string }
+      "attributes": 
+        type : object
+        required: [ "title", "tags", "description", "nodeName","extension"]
+        properties: 
+          "title": { type: string }
+          "nodeName": { type: string }
+          "description": { type: string }
+          "tags": { type: string }
+          "extension":
+            type : object
+            required: [ "type", "version", "data"]
+            properties: 
+              "type": { type: string }
+              "version": { type: string }
+              "data":
+                type : object
+                required: [ "name", "registryType", "facets"]
+                properties: 
+                  "name": { type: string }
+                  "registryType": {type : string, enum : ["MATERIALS","MACHINES"]}
+                  "facets":   
+                    type : object
+                    properties:
+                      "appearance":  
+                        type : array
+                        items : 
+                          type : object
+                          required : ["facetName","contentId","libraryId","contentVersion" ]
+                          properties: 
+                            "facetName": {type: string}
+                            "contentId": {type : string}
+                            "libraryId": {type: string}
+                            "contentVersion": {type: integer}
+
+# -------------------------------------------------------------------
+# Parameters
+# -------------------------------------------------------------------
+parameters:
+  reviewableEntitiesPostPayload: 
+    name: reviewableEntitiesPostPayload
+    in: body
+    description: 'payload to add entities for reviewing'
+    required: true
+    schema:
+      $ref: '#/definitions/reviewableEntitiesData'
+      example: {
+        "data": {
+          "type": "reviewableEntities",
+          "attributes": {
+            "facets": [
+              {
+                "type": "MATERIALS",
+                "libraryId": "urn:adsk.content:library:38d64453-7a06-4183-900d-c129469ff9cd",
+                "contentId": "urn:adsk.content:content:739ce398-2107-4e3c-9722-ab204eec4ff8",
+                "facetName": "additive9",
+                "contentVersion": 1,
+                "nodeName": "Metal,createNode name,createNode name 1",
+                "registryContentId":"urn:adsk.content:node:c3f989cc-20ce-4e12-b8d3-cfab5465chfd42",
+                "contentName": "Material Accura 25",
+                "references": {
+                  "machines": [
+                    {
+                      "libraryId": "urn:adsk.content:library:f34285d9-8e2f-4e89-924a-8bbf75c178f8",
+                      "contentId": "urn:adsk.content:content:938e809f-dbaf-4e26-9e40-8678508942e0",
+                      "schemaTypes": "contents:autodesk.mdb.alpha:machineAM-2.0.0",
+                      "version": 1
+                    }
+                  ],
+                   "processes": [
+                    {
+                      "libraryId": "urn:adsk.content:library:f34285d9-8e2f-4e89-924a-8bbf75c178f8",
+                      "contentId": "urn:adsk.content:content:938e809f-dbaf-4e26-9e40-8678508942e0",
+                      "schemaTypes": "contents:autodesk.mdb.alpha:machineAM-2.0.0",
+                      "version": 1
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        }
+      }
+      
+  reviewableEntitiesPutPayload: 
+    name: reviewableEntitiesPutPayload
+    in: body
+    description: 'payload to update entities for reviewing'
+    required: true
+    schema:
+      $ref: '#/definitions/reviewableEntitiesData'
+      example: {
+        "data": {
+          "type": "reviewableEntities",
+          "attributes": {
+            "facets": [
+              {
+                "type": "MATERIALS",
+                "libraryId": "urn:adsk.content:library:38d64453-7a06-4183-900d-c129469ff9cd",
+                "contentId": "urn:adsk.content:content:739ce398-2107-4e3c-9722-ab204eec4ff8",
+                "status": "APPROVED"
+              }
+            ]
+          }
+        }
+      }
+      
+  registryPostPayload: 
+    name: registryPostPayload
+    in: body
+    description: 'payload to add global registry, or add facets in global registry'
+    required: true
+    schema:
+      $ref: '#/definitions/registryData'
+      example: {
+        "data": {
+          "type": "registryEntries",
+          "attributes": {
+            "nodeName": "Steel, new steel node",
+            "description": "registryEntries description",
+            "tags": "Molecule Ra Tough Elastomer",
+            "title": "Molecule Ra - Tough Elastomer12213",
+            "extension": {
+              "type": "contents:autodesk.mdb.alpha:RegistryEntry",
+              "version": "1.0.0",
+              "data": {
+                "name": "Molecule Ra - Tough Elastomer1",
+                "registryType": "MATERIALS",
+                "facets": {
+                  "appearance": [
+                    {
+                      "libraryId": "urn:adsk.content:library:38d64453-7a06-4183-900d-c129469ff9cd",
+                      "contentId": "urn:adsk.content:content:739ce398-2107-4e3c-9722-ab204eec4ff8",
+                      "schemaTypes": "contents:autodesk.mdb.alpha:materialAM-4.0.0",
+                      "version": 1
+                    }
+                  ],
+                  "physical": [
+                    {
+                      "libraryId": "urn:adsk.content:library:38d64453-7a06-4183-900d-c129469ff9cd",
+                      "contentId": "urn:adsk.content:content:739ce398-2107-4e3c-9722-ab204eec4ff8",
+                      "schemaTypes": "contents:autodesk.mdb.alpha:materialAM-4.0.0",
+                      "version": 1
+                    }
+                  ]
+                },
+                "references": {
+                  "machines": [
+                    {
+                      "libraryId": "urn:adsk.content:library:f34285d9-8e2f-4e89-924a-8bbf75c178f8",
+                      "contentId": "urn:adsk.content:content:938e809f-dbaf-4e26-9e40-8678508942e0",
+                      "schemaTypes": "contents:autodesk.mdb.alpha:machineAM-2.0.0",
+                      "version": 1
+                    }
+                  ],
+                   "processes": [
+                    {
+                      "libraryId": "urn:adsk.content:library:f34285d9-8e2f-4e89-924a-8bbf75c178f8",
+                      "contentId": "urn:adsk.content:content:938e809f-dbaf-4e26-9e40-8678508942e0",
+                      "schemaTypes": "contents:autodesk.mdb.alpha:machineAM-2.0.0",
+                      "version": 1
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+
+  registryPutPayload: 
+    name: registryPutPayload
+    in: body
+    description: 'payload to update global registry'
+    required: true
+    schema:
+      $ref: '#/definitions/registryData'
+      example: {
+        "data": {
+          "type": "registryEntries",
+          "id": "urn:adsk.content:node:c463789cc-20ce-4e12-b8d3-cfab5ecch3332",
+          "attributes": {
+            "nodeName": "Steel, new steel",
+            "description": "registryEntries description",
+            "tags": "Molecule Ra Tough Elastomer",
+            "title": "Molecule Ra - Tough Elastomer12213",
+            "extension": {
+              "type": "contents:autodesk.mdb.alpha:RegistryEntry",
+              "version": "1.0.0",
+              "data": {
+                "name": "Molecule Ra - Tough Elastomer1",
+                "registryType": "MATERIALS",
+                "facets": {
+                  "appearance": [
+                    {
+                      "libraryId": "urn:adsk.content:library:38d64453-7a06-4183-900d-c129469ff9cd",
+                      "contentId": "urn:adsk.content:content:739ce398-2107-4e3c-9722-ab204eec4ff8",
+                      "schemaTypes": "contents:autodesk.mdb.alpha:materialAM-4.0.0",
+                      "version": 1
+                    }
+                  ],
+                  "physical": [
+                    {
+                      "libraryId": "urn:adsk.content:library:38d64453-7a06-4183-900d-c129469ff9cd",
+                      "contentId": "urn:adsk.content:content:739ce398-2107-4e3c-9722-ab204eec4ff8",
+                      "schemaTypes": "contents:autodesk.mdb.alpha:materialAM-4.0.0",
+                      "version": 1
+                    }
+                  ]
+                },
+                "references": {
+                  "machines": [
+                    {
+                      "libraryId": "urn:adsk.content:library:f34285d9-8e2f-4e89-924a-8bbf75c178f8",
+                      "contentId": "urn:adsk.content:content:938e809f-dbaf-4e26-9e40-8678508942e0",
+                      "schemaTypes": "contents:autodesk.mdb.alpha:machineAM-2.0.0",
+                      "version": 1
+                    }
+                  ],
+                   "processes": [
+                    {
+                      "libraryId": "urn:adsk.content:library:f34285d9-8e2f-4e89-924a-8bbf75c178f8",
+                      "contentId": "urn:adsk.content:content:938e809f-dbaf-4e26-9e40-8678508942e0",
+                      "schemaTypes": "contents:autodesk.mdb.alpha:machineAM-2.0.0",
+                      "version": 1
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    
+  query_filter_contents_registry_type:
+    name: filter[contents][extension.data.registryType]
+    in: query
+    description: Specify the global registry to search
+    required: true
+    type: string
+
+  query_filter_units:
+    name: filter[units][]
+    in: query
+    description: Specify the unit for a particular property in search result
+    required: false
+    type: string
+
+  query_filter_contents_facet_name:
+    name: filter[contents][facetName]
+    in: query
+    description: Specify the facet(s) for searching registry entries
+    required: true
+    type: string
+    
+  query_filter_include_contents:
+    name: include[contents]
+    in: query
+    description: Describe the reference to include in the response, e.g. references.processes, references.materials, references.machines etc.
+    required: false
+    type: string
+    
+  query_filter_contents_query:
+    name: filter[contents][query]
+    in: query
+    description: Complex query to search content data properties
+    required: false
+    type: string
+    
+  query_filter_page_size:
+    name: page[size]
+    in: query
+    description: Result size.
+    required: false
+    type: integer
+    default: 20
+    
+  query_filter_page_number:
+    name: page[number]
+    in: query
+    description: Result page number.
+    required: false
+    type: integer
+    default: 1
+
+# -------------------------------------------------------------------
+# Responses
+# -------------------------------------------------------------------
+responses:
+  bad_input:
+    description: Bad input response
+    schema:
+      title: bad input
+      type: object
+      allOf:
+      - $ref: '#/definitions/json_api_error'
+    examples:
+      application/vnd.api+json:
+        {
+            "errors": [
+                {
+                    "id": "f994fbeb-ae29-46ed-82da-7293aac53d20",
+                    "status": "400",
+                    "code": "BAD_INPUT",
+                    "title": "One or more input values in the request were bad",
+                    "detail": "'abcxyz' is an invalid Urn"
+                }
+            ]
+        }
+        
+  forbidden:
+    description: Forbidden response
+    schema:
+      title: forbidden
+      type: object
+      allOf:
+      - $ref: '#/definitions/json_api_error'
+    examples:
+      application/vnd.api+json:
+        {
+            "errors": [
+                {
+                    "id": "d3f6d37c-a8d1-4dab-8beb-1462d06ef252",
+                    "status": "403",
+                    "code": "USER_NOT_AUTHENTICATED",
+                    "detail": "The user was not authenticated."
+                }
+            ]
+        }
+  
+  contentsResponse:
+    description: Successful Search response
+    schema:
+      $ref: '#/definitions/json_api_collection'
+    examples:
+      application/vnd.api+json:
+        {
+          "data": [
+            {
+              "type": "contents",
+              "id": "urn:adsk.content:content:147fd57f-a2e6-4f59-8b44-249a5e9cbb80",
+              "attributes": {
+                "extension": {
+                  "type": "contents:autodesk.mds:MaterialRegistry",
+                  "version": "1.0.0",
+                  "namespace": "",
+                  "data": {
+                    "name": "AlSi10Mg",
+                    "facets": {
+                      "physical": [
+                        {
+                          "version": 1,
+                          "contentId": "urn:adsk.content:content:2cd896aa-653c-43e9-b30d-70c1fbfc2b76",
+                          "libraryId": "urn:adsk.content:library:beb2e52c-3faa-4064-954f-b14a398d8af6",
+                          "schemaTypes": "contents:autodesk.mds:MaterialPhysical-1.0.0"
+                        }
+                      ],
+                      "appearance": [
+                        {
+                          "version": 1,
+                          "contentId": "urn:adsk.content:content:d920997b-4ec3-4e78-b3f6-17d1a54661e2",
+                          "libraryId": "urn:adsk.content:library:74041d69-cefd-4b30-8f7a-7a917faa256a",
+                          "schemaTypes": "contents:autodesk.mdb.alpha:materialAM-4.0.0"
+                        }
+                      ],
+                      "mechanical": [
+                        {
+                          "version": 2,
+                          "contentId": "urn:adsk.content:content:9b53a93d-74c5-48fd-adc4-da2a1cc04826",
+                          "libraryId": "urn:adsk.content:library:beb2e52c-3faa-4064-954f-b14a398d8af6",
+                          "schemaTypes": "contents:autodesk.mds:MaterialPhysical-1.0.0"
+                        }
+                      ]
+                    },
+                    "references": {},
+                    "registryType": "MATERIALS"
+                  }
+                },
+                "entityPaths": [
+                  "/urn:adsk.content:library:6f855140-5c0b-4668-b690-a746b420e85a/urn:adsk.content:node:9f23705c-fab9-4f14-8565-2e1281e8e82d/urn:adsk.content:content:147fd57f-a2e6-4f59-8b44-249a5e9cbb80"
+                ],
+                "lastModifiedTime": "2017-03-27T13:15:37Z",
+                "childNodesCount": 0,
+                "description": "Global material registry for the manufacturing data service",
+                "language": "en",
+                "type": "contents",
+                "title": "AlSi10Mg",
+                "version": "3",
+                "tags": "registry,material,global",
+                "createTime": "2017-03-27T13:15:37Z",
+                "lock": false,
+                "region": "US",
+                "status": "published"
+              },
+              "relationships": {
+                "references": {
+                  "links": {
+                    "self": "https://developer-stg.api.autodesk.com/mdb-alpha/v2/contents/urn:adsk.content:content:147fd57f-a2e6-4f59-8b44-249a5e9cbb80/relationships/references",
+                    "related": "https://developer-stg.api.autodesk.com/mdb-alpha/v2/contents/urn:adsk.content:content:147fd57f-a2e6-4f59-8b44-249a5e9cbb80/references"
+                  },
+                  "data": []
+                },
+                "facets": {
+                  "links": {
+                    "self": "https://developer-stg.api.autodesk.com/mdb-alpha/v2/contents/urn:adsk.content:content:147fd57f-a2e6-4f59-8b44-249a5e9cbb80/relationships/facets",
+                    "related": "https://developer-stg.api.autodesk.com/mdb-alpha/v2/contents/urn:adsk.content:content:147fd57f-a2e6-4f59-8b44-249a5e9cbb80/facets"
+                  },
+                  "data": [
+                    {
+                      "type": "contents",
+                      "id": "urn:adsk.content:content:2cd896aa-653c-43e9-b30d-70c1fbfc2b76"
+                    },
+                    {
+                      "type": "contents",
+                      "id": "urn:adsk.content:content:d920997b-4ec3-4e78-b3f6-17d1a54661e2"
+                    },
+                    {
+                      "type": "contents",
+                      "id": "urn:adsk.content:content:9b53a93d-74c5-48fd-adc4-da2a1cc04826"
+                    }
+                  ]
+                }
+              },
+              "links": {
+                "self": "https://developer-stg.api.autodesk.com/mdb-alpha/v2/contents/urn:adsk.content:content:147fd57f-a2e6-4f59-8b44-249a5e9cbb80"
+              }
+            }
+          ],
+          "included": [
+            {
+              "type": "contents",
+              "id": "urn:adsk.content:content:9b53a93d-74c5-48fd-adc4-da2a1cc04826",
+              "attributes": {
+                "extension": {
+                  "type": "contents:autodesk.mds:MaterialPhysical",
+                  "version": "1.0.0",
+                  "namespace": "",
+                  "data": {
+                    "name": "Polycarbonate 9030",
+                    "density": {
+                      "units": "kg/m^3",
+                      "value": 1120
+                    },
+                    "category": "POLYMER",
+                    "facetName": "physical",
+                    "dataSource": "Classic Materials",
+                    "poissonRatio": {
+                      "units": "",
+                      "value": 0.37
+                    },
+                    "specificHeat": {
+                      "units": "J/(kg K)",
+                      "value": 1000
+                    },
+                    "youngModulus": {
+                      "units": "Pa",
+                      "value": 2380000000
+                    },
+                    "yieldStrength": {
+                      "units": "Pa",
+                      "value": 62000000
+                    },
+                    "thermalConductivity": {
+                      "units": "W/(m K)",
+                      "value": 0.2
+                    },
+                    "ultimateTensileStrength": {
+                      "units": "Pa",
+                      "value": 65500000
+                    },
+                    "thermalExpansionCoefficient": {
+                      "units": "1/K",
+                      "value": 0.000068
+                    }
+                  }
+                },
+                "entityPaths": [
+                  "/urn:adsk.content:library:beb2e52c-3faa-4064-954f-b14a398d8af6/urn:adsk.content:node:2991da7c-cdaf-43ba-8842-4d0c4ff41d6a/urn:adsk.content:content:9b53a93d-74c5-48fd-adc4-da2a1cc04826"
+                ],
+                "lastModifiedTime": "2017-03-24T22:37:48Z",
+                "lastModifiedBy": "YUVHM4PE5UFG",
+                "childNodesCount": 0,
+                "description": "contents",
+                "language": "EN",
+                "type": "contents",
+                "title": "Polycarbonate 9030",
+                "version": "2",
+                "tags": "physical,materials,content",
+                "createTime": "2017-03-24T22:37:48Z",
+                "lock": false,
+                "region": "US",
+                "status": "published"
+              },
+              "relationships": {
+                "references": {
+                  "links": {
+                    "self": "https://developer-stg.api.autodesk.com/mdb-alpha/v2/contents/urn:adsk.content:content:9b53a93d-74c5-48fd-adc4-da2a1cc04826/relationships/references",
+                    "related": "https://developer-stg.api.autodesk.com/mdb-alpha/v2/contents/urn:adsk.content:content:9b53a93d-74c5-48fd-adc4-da2a1cc04826/references"
+                  },
+                  "data": []
+                },
+                "facets": {
+                  "links": {
+                    "self": "https://developer-stg.api.autodesk.com/mdb-alpha/v2/contents/urn:adsk.content:content:9b53a93d-74c5-48fd-adc4-da2a1cc04826/relationships/facets",
+                    "related": "https://developer-stg.api.autodesk.com/mdb-alpha/v2/contents/urn:adsk.content:content:9b53a93d-74c5-48fd-adc4-da2a1cc04826/facets"
+                  },
+                  "data": []
+                }
+              },
+              "links": {
+                "self": "https://developer-stg.api.autodesk.com/mdb-alpha/v2/contents/urn:adsk.content:content:9b53a93d-74c5-48fd-adc4-da2a1cc04826"
+              }
+            },
+            {
+              "type": "contents",
+              "id": "urn:adsk.content:content:2cd896aa-653c-43e9-b30d-70c1fbfc2b76",
+              "attributes": {
+                "extension": {
+                  "type": "contents:autodesk.mds:MaterialPhysical",
+                  "version": "1.0.0",
+                  "namespace": "",
+                  "data": {
+                    "name": "AlSi10Mg",
+                    "density": {
+                      "units": "kg/m^3",
+                      "value": 2670
+                    },
+                    "category": "ADDITIVE_METAL",
+                    "facetName": "physical",
+                    "dataSource": "Netfabb Additive Materials",
+                    "poissonRatio": {
+                      "units": "",
+                      "value": 0.33
+                    },
+                    "specificHeat": {
+                      "units": "J/(kg K)",
+                      "value": 880
+                    },
+                    "youngModulus": {
+                      "units": "Pa",
+                      "value": 71000000000
+                    },
+                    "yieldStrength": {
+                      "units": "Pa",
+                      "value": 240000000
+                    },
+                    "thermalConductivity": {
+                      "units": "W/(m K)",
+                      "value": 165
+                    },
+                    "ultimateTensileStrength": {
+                      "units": "Pa",
+                      "value": 460000000
+                    },
+                    "thermalExpansionCoefficient": {
+                      "units": "1/K",
+                      "value": 0.000021
+                    }
+                  }
+                },
+                "entityPaths": [
+                  "/urn:adsk.content:library:beb2e52c-3faa-4064-954f-b14a398d8af6/urn:adsk.content:node:2991da7c-cdaf-43ba-8842-4d0c4ff41d6a/urn:adsk.content:content:2cd896aa-653c-43e9-b30d-70c1fbfc2b76"
+                ],
+                "lastModifiedTime": "2017-03-20T21:23:37Z",
+                "lastModifiedBy": "YUVHM4PE5UFG",
+                "childNodesCount": 0,
+                "description": "contents",
+                "language": "EN",
+                "type": "contents",
+                "title": "AlSi10Mg",
+                "version": "1",
+                "tags": "physical,materials,content",
+                "createTime": "2017-03-20T21:23:37Z",
+                "lock": false,
+                "region": "US",
+                "status": "published"
+              },
+              "relationships": {
+                "references": {
+                  "links": {
+                    "self": "https://developer-stg.api.autodesk.com/mdb-alpha/v2/contents/urn:adsk.content:content:2cd896aa-653c-43e9-b30d-70c1fbfc2b76/relationships/references",
+                    "related": "https://developer-stg.api.autodesk.com/mdb-alpha/v2/contents/urn:adsk.content:content:2cd896aa-653c-43e9-b30d-70c1fbfc2b76/references"
+                  },
+                  "data": []
+                },
+                "facets": {
+                  "links": {
+                    "self": "https://developer-stg.api.autodesk.com/mdb-alpha/v2/contents/urn:adsk.content:content:2cd896aa-653c-43e9-b30d-70c1fbfc2b76/relationships/facets",
+                    "related": "https://developer-stg.api.autodesk.com/mdb-alpha/v2/contents/urn:adsk.content:content:2cd896aa-653c-43e9-b30d-70c1fbfc2b76/facets"
+                  },
+                  "data": []
+                }
+              },
+              "links": {
+                "self": "https://developer-stg.api.autodesk.com/mdb-alpha/v2/contents/urn:adsk.content:content:2cd896aa-653c-43e9-b30d-70c1fbfc2b76"
+              }
+            },
+            {
+              "type": "contents",
+              "id": "urn:adsk.content:content:d920997b-4ec3-4e78-b3f6-17d1a54661e2",
+              "attributes": {
+                "extension": {
+                  "type": "contents:autodesk.mdb.alpha:materialAM",
+                  "version": "4.0.0",
+                  "namespace": "",
+                  "data": {
+                    "density": {
+                      "units": "kg/m^3",
+                      "value": 30
+                    },
+                    "facetId": "AdditiveManufacturing3",
+                    "process": "something",
+                    "taxonomy": "polymer",
+                    "colorName": "red",
+                    "formFactor": "filament",
+                    "displayName": "FLPCL02_white",
+                    "materialCost": {
+                      "units": "$/kg",
+                      "value": 120
+                    },
+                    "materialName": "FLPCL02_white",
+                    "manufacturerName": "formlabs"
+                  }
+                },
+                "entityPaths": [
+                  "/urn:adsk.content:library:74041d69-cefd-4b30-8f7a-7a917faa256a/urn:adsk.content:node:ff6b812b-630c-44ef-ad97-fdbdca79a0a1/urn:adsk.content:content:d920997b-4ec3-4e78-b3f6-17d1a54661e2"
+                ],
+                "lastModifiedTime": "2017-03-10T09:21:35Z",
+                "lastModifiedBy": "S8MNRK2XZXCK",
+                "childNodesCount": 0,
+                "description": "This is best material",
+                "language": "EN",
+                "type": "contents",
+                "title": "ABS",
+                "version": "1",
+                "tags": "materials",
+                "createTime": "2017-03-10T09:21:35Z",
+                "lock": false,
+                "region": "US",
+                "status": "published"
+              },
+              "relationships": {
+                "references": {
+                  "links": {
+                    "self": "https://developer-stg.api.autodesk.com/mdb-alpha/v2/contents/urn:adsk.content:content:d920997b-4ec3-4e78-b3f6-17d1a54661e2/relationships/references",
+                    "related": "https://developer-stg.api.autodesk.com/mdb-alpha/v2/contents/urn:adsk.content:content:d920997b-4ec3-4e78-b3f6-17d1a54661e2/references"
+                  },
+                  "data": []
+                },
+                "facets": {
+                  "links": {
+                    "self": "https://developer-stg.api.autodesk.com/mdb-alpha/v2/contents/urn:adsk.content:content:d920997b-4ec3-4e78-b3f6-17d1a54661e2/relationships/facets",
+                    "related": "https://developer-stg.api.autodesk.com/mdb-alpha/v2/contents/urn:adsk.content:content:d920997b-4ec3-4e78-b3f6-17d1a54661e2/facets"
+                  },
+                  "data": []
+                }
+              },
+              "links": {
+                "self": "https://developer-stg.api.autodesk.com/mdb-alpha/v2/contents/urn:adsk.content:content:d920997b-4ec3-4e78-b3f6-17d1a54661e2"
+              }
+            }
+          ],
+          "meta": {
+            "paginationInfo": {
+              "totalResults": 1,
+              "pageNumber": 1,
+              "totalPages": 1,
+              "pageSize": 20
+            },
+            "message": [
+              {
+                "messageId": "0: Query parsing failed",
+                "message": "Failed to resolve range query field: extension.data.facets.appearance.extension.data.poissonRatio.value"
+              },
+              {
+                "messageId": "0: Query parsing failed",
+                "message": "Failed to resolve range query field: extension.data.facets.mechanical.extension.data.poissonRatio.value"
+              }
+            ]
+          },
+          "links": {
+            "prev": "",
+            "next": "",
+            "first": "https://developer-stg.api.autodesk.com/mdb-alpha/v2/contents?filter[contents][extension.data.name]=AlSi10Mg&filter[contents][extension.data.registryType]=MATERIALS&filter[contents][query]=(extension.data.facets.physical.version:1 AND extension.data.facets.physical.extension.data.poissonRatio.value>0) OR (extension.data.facets.appearance.version:1 AND extension.data.facets.appearance.extension.data.poissonRatio.value>0) OR (extension.data.facets.mechanical.version:2 AND extension.data.facets.mechanical.extension.data.poissonRatio.value>0) AND (extension.data.facets.physical.version>0 OR extension.data.facets.appearance.version>0 OR extension.data.facets.mechanical.version>0)&filter[contents][facetName]=physical&filter[contents][facetName]=appearance&filter[contents][facetName]=mechanical&page[number]=1&page[size]=20",
+            "last": "https://developer-stg.api.autodesk.com/mdb-alpha/v2/contents?filter[contents][extension.data.name]=AlSi10Mg&filter[contents][extension.data.registryType]=MATERIALS&filter[contents][query]=(extension.data.facets.physical.version:1 AND extension.data.facets.physical.extension.data.poissonRatio.value>0) OR (extension.data.facets.appearance.version:1 AND extension.data.facets.appearance.extension.data.poissonRatio.value>0) OR (extension.data.facets.mechanical.version:2 AND extension.data.facets.mechanical.extension.data.poissonRatio.value>0) AND (extension.data.facets.physical.version>0 OR extension.data.facets.appearance.version>0 OR extension.data.facets.mechanical.version>0)&filter[contents][facetName]=physical&filter[contents][facetName]=appearance&filter[contents][facetName]=mechanical&page[number]=1&page[size]=20"
+          }
+        }
+
+  reviewableEntities:
+    description: 'Successful response'
+    schema:
+      $ref: '#/definitions/reviewableEntitiesData'
+    examples: {
+      "data": {
+        "type": "reviewableEntities",
+        "id": "null",
+        "attributes": {
+          "facets": [
+            {
+              "libraryId": "urn:adsk.content:library:38d64453-7a06-4183-900d-c129469ff9cd",
+              "contentId": "urn:adsk.content:content:739ce398-2107-4e3c-9722-ab204eec4ff8",
+              "facetName": "additive9",
+              "contentVersion": 1,
+              "type": "MATERIALS",
+              "status": "PENDING",
+              "submittedDate": "2017-02-28T08:16:10Z",
+              "submittedById": "ZWWMLJ5FWLNM",
+              "submittedByEmail": "qi.zheng@autodesk.com",
+              "nodeName": "Metal,createNode,createNode1",
+              "references": {
+                "machines": [
+                  {
+                    "libraryId": "urn:adsk.content:library:f34285d9-8e2f-4e89-924a-8bbf75c178f8",
+                    "contentId": "urn:adsk.content:content:938e809f-dbaf-4e26-9e40-8678508942e0",
+                    "schemaTypes": "contents:autodesk.mdb.alpha:machineAM-2.0.0",
+                    "version": 1                    
+                  }
+                ],
+                 "processes": [
+                  {
+                    "libraryId": "urn:adsk.content:library:f34285d9-8e2f-4e89-924a-8bbf75c178f8",
+                    "contentId": "urn:adsk.content:content:938e809f-dbaf-4e26-9e40-8678508942e0",
+                    "schemaTypes": "contents:autodesk.mdb.alpha:machineAM-2.0.0",
+                    "version": 1
+                  }
+                ]
+              },
+              "registryContentId": "",
+              "contentName": ""
+            }
+          ]
+        },
+        "relationships": {},
+        "links": {
+          "self": "http://localhost:8080/reviewableEntities/null"
+        }
+      },
+      "included": [],
+      "meta": {}
+    }
+  
+  registry:
+    description: 'Successful response'
+    schema:
+      $ref: '#/definitions/registryData'
+    examples: {
+      "data": {
+        "type": "registryEntries",
+        "id": "urn:adsk.content:content:7d189503-40b0-47b7-ad54-0859f1a1df9a",
+        "attributes": {
+          "extension": {
+            "type": "contents:autodesk.mdb.alpha:RegistryEntry",
+            "version": "1.0.0",
+            "data": {
+              "name": "Molecule Ra - Tough Elastomer1",
+              "registryType": "MATERIALS",
+              "facets": {
+                  "appearance": [
+                    {
+                      "libraryId": "urn:adsk.content:library:38d64453-7a06-4183-900d-c129469ff9cd",
+                      "contentId": "urn:adsk.content:content:739ce398-2107-4e3c-9722-ab204eec4ff8",
+                      "schemaTypes": "contents:autodesk.mdb.alpha:materialAM-4.0.0",
+                      "version": 1
+                    }
+                  ],
+                  "physical": [
+                    {
+                      "libraryId": "urn:adsk.content:library:38d64453-7a06-4183-900d-c129469ff9cd",
+                      "contentId": "urn:adsk.content:content:739ce398-2107-4e3c-9722-ab204eec4ff8",
+                      "schemaTypes": "contents:autodesk.mdb.alpha:materialAM-4.0.0",
+                      "version": 1
+                    }
+                  ]
+                },
+                "references": {
+                  "machines": [
+                    {
+                      "libraryId": "urn:adsk.content:library:f34285d9-8e2f-4e89-924a-8bbf75c178f8",
+                      "contentId": "urn:adsk.content:content:938e809f-dbaf-4e26-9e40-8678508942e0",
+                      "schemaTypes": "contents:autodesk.mdb.alpha:machineAM-2.0.0",
+                      "version": 1
+                    }
+                  ],
+                   "processes": [
+                    {
+                      "libraryId": "urn:adsk.content:library:f34285d9-8e2f-4e89-924a-8bbf75c178f8",
+                      "contentId": "urn:adsk.content:content:938e809f-dbaf-4e26-9e40-8678508942e0",
+                      "schemaTypes": "contents:autodesk.mdb.alpha:machineAM-2.0.0",
+                      "version": 1
+                    }
+                  ]
+                }
+            }
+          },
+          "title": "Molecule Ra - Tough Elastomer1"
+        },
+        "relationships": {},
+        "links": {
+          "self": "http://localhost:8080/registryEntries/urn:adsk.content:content:7d189503-40b0-47b7-ad54-0859f1a1df9a"
+        }
+      },
+      "included": []
+    }
