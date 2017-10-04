@@ -199,9 +199,9 @@ paths:
       description: |
         Perform a search in the libraries registered in forge content for the facet name(s) specified in the query parameters
         
-        * The registry type identifies the global registries where to perform the search, i.e. MATERIALS, or MACHINES.
+        * The registry type identifies the global registries where to perform the search. At this time, we are supporting MATERIALS only.
         
-        * The facet name further narrow down the sets of data the client is interested in. An example of a facet name is 'additive', for which properties specific to additive manufacturing would be returned in case of the MATERIALS global registry.
+        * The facet name further narrow down the sets of data the client is interested in. The supported facets are additive and physical.
         
         * If the extension.data section includes references of type customTypes:autodesk.core:reference-1.0.0, it is possible to include the referenced objects in the response under the included section when passing the query paramater
         include[contents]=references.<reference_name>. For example: include[contents]=references.machines, include[contents]=references.processes</li>
