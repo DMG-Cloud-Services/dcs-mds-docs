@@ -4,13 +4,133 @@ info:
   title: Manufacturing Data Service (MDS)
   version: "2.0"
   description: |
-    Manufacturing solution database API's.
     
-    # Standards
-    This API following the JSON API specs 1.0 documented
-    [here](http://jsonapi.org/format/)
+    [@overview]: <> (title)
     
-    # Http Verbs
+    The Manufacturing Data Service (MDS) is a service that provides the global registry for data unification. 
+
+    In this global registry, an MDS administrator registers the contents received from internal and external people. THe MDS then organizes that data so that whenever necessary, people can easily access the information to meet business requirements.
+    
+    The data in the global registry can be related to materials, machines, tools, processes, and solutions that various Autodesk product teams provide. For example, different materials for 3D printing jobs, different types of machines and tools for 3D printing, various manufacturing processes and customized solutions related to 3D printing.
+    
+    The selection of a particular material, a particular manufacturing process requires a thorough knowledge of various aspects of the material, such as the performance, constraints. While designing a product, many people work in collaboration to make decisions based on the geometry, functionality, and looks of the part, which impacts the manufacturing. The decision makers also spend much of their time in consulting with experts on how to best design and manufacture the product to make it easy to use.
+    
+    Autodesk uses the unified data to drive tools that help designers improve the manufacturing and performance of their products. Currently, the data related to materials, machines, tools, and processes is directly stored in a database, which is integrated with various products across Autodesk. 
+    
+    With MDS, product teams can make their content accessible to internal and external people, but still manage and control their contents in their own libraries. MDS also serves the data to the end-to-end software from Autodesk and lets customers have the experience of real materials, machines, tools, and processes they use inside the Autodesk products.
+    
+    ## Advantages of MDS
+
+    MDS helps Autodesk customers and product teams share and collaborate with their design and manufacturing data to fit their business needs.
+    
+    ### Few Advantages of MDS
+    
+    * Allows product teams to make their content accessible to customers and help customers to find information about the various components related to design and manufacturing. 
+    
+    * The data is available in as many contexts and tools as possible.
+    
+    * Adds a value to the products by integrating data with as many applications as possible.
+    
+    * Creates an ecosystem of partners to contribute data to underline design, simulation and manufacturing.
+    
+    * Scales the data with an easy on boarding system for the internal and external partners.
+    
+    * Meets the requirements of existing application databases in building sophisticated work flows for permissions, security, data quality measures and adding new data types.
+    
+    * Gets the intelligence out of the available data through machine learning projects to interpolate, understand, and validate data.
+    
+    ## Getting Started
+    
+    The [API Basics](/en/docs/mds/v1/overview/basics) section guides you through the process of getting started with the API and explains the main concepts and functionality.
+    
+    [@overview/basics]: <>
+    # API Basics
+    
+    Forge MDS service provides a set of APIs that allows the Autodesk product teams to publish their industry data to a global registry. The data can be for materials, machines, tools, processes, or solutions. With MDS, the multiple facets of the same entity are made available to all people without any permissions.
+
+    Forge MDS API follows the JSON API specification 1.0. For more information, see `JSON API specification <http://jsonapi.org/format/>`_.
+    
+    For all Forge MDS API requests, you need to set the following headers:
+    
+    | Header            | Value
+    | ----------------  | -------------------------------------------------------------------------------------------------------
+    | **Authorization** | `Bearer: <2-legged or 3-leggedToken>`. 
+    |                   | A guest or member authorization token as provided by Forge Login workflow. See Auth section on how to generate a guest/member token. Access to various API's depends on the token access levels.
+    | **Content-Type**  | `application/vnd.api+json`.
+    |                   | Clients MUST send all `JSON API` data in the request documents with the header.
+    | **Accept**        | `application/vnd.api+json`.
+    |                   | If not specified otherwise, the response is also returned in a `JSON API` conformant way. Exceptions might be returning the binary content of a file.
+    
+    ## Standards
+    1. This API follows the ``JSON API`` specs 1.0 documented at `JSON API Spec <http://jsonapi.org/format/>`_
+    2. Entity names are always plural for example, ``reviewableEntities``, ``registryEntries``
+    3. Element names are camelCase for example, ``rootFolder``
+    4. Most operations work with both 2 and 3 legged oauth keys. In case a 2 legged oauth key is used - some fields like userId may be empty (or use application name)
+        
+    ## URL Syntax
+
+    ```
+    https://{domain}/mdb/{version}/{resource}
+    https://{domain}/mdb/{version}/{resource}/{resourceId}
+    https://{domain}/mdb/{version}/{resource}/{resourceId},{resourceId}
+    https://{domain}/mdb/{version}/{resource}/{resourceId}/relationships/{resource}
+    ```
+    All endpoints begin with <code>/mdb/{version}/</code>
+    For Example: ``https://developer.api.autodesk.com/mdb/v2/reviewableEntities``
+    
+    ## API JSON Structure
+    
+    All APIs follow the JSON API resources using similar structure:
+    
+    ```json
+    	{
+    	 "data": {
+    	  "type": "type",
+    	  "id": "identifier",
+    	  "attributes": {
+    	  	"title": " ",
+    	    "description": " ",
+    	    "status": " "
+    	  },
+    	  "relationships": {
+    	  	"contents": {
+              "links": {},
+              "data": []
+            },
+            "libraries": {
+              "links": {},
+              "data": []
+            },
+            "nodes": {
+              "links": {},
+              "data": []
+            }
+    	  },
+    	  "links": {}
+    	 }
+    	}
+    ```
+    **Note**: The full representation is omitted for easy understanding.
+    
+    ## Error Objects
+
+    Forge MDS services provide an extended error data about the problems encountered while attempting to perform an operation. Error objects are returned as an array keyed by errors in the response body.
+    
+    For example, here is an example error payload accompanying an HTTP 403, returned because the user is not authenticated:
+    
+    ```json
+    	{
+    	  "errors": [{
+    	    "status": "400 Bad Method",
+    	    "id": "a unique identifier for this particular occurrence of the problem",
+    	    "code": "10234",
+    	    "title": "Wrong Material ID",
+    	    "detail": "Material ID 15234523 does not exist in the database",
+    	  }]
+    	}
+    ```
+    
+    ## Http Verbs
     
     |Verb         | Description
     | ------      | -------------------------------------------------------------------------------------------------------
@@ -19,11 +139,12 @@ info:
     | `PATCH`     |  Used to update an item. Success returns 200 status code with updated json item in body.
     | `DELETE`    |  Used to delete an item. Success returns 204 status code with no body.
 
-    # Pagination
-    JSON API is agnostic about the pagination strategy used by a server.
-    Effective pagination strategies include (but are not limited to):
-    page-based, offset-based, and cursor-based. This API uses the page
-    based strategy with parameters page[number] and page[size].
+    ## Pagination
+    
+    JSON API is agnostic about the pagination strategy used by a server. Effective pagination strategies include (but are not limited to):
+    page-based, offset-based, and cursor-based. 
+    
+    This API uses the page based strategy with parameters page[number] and page[size].
 
     | Parameter    | Description |
     | ------       | ------   |
@@ -32,54 +153,119 @@ info:
 
     *Note*: The example query parameters above use unencoded [ and ] characters simply for readability. In practice, these characters must be percent-encoded, per the requirements in RFC 3986
 
-    # URL Syntax
-
-    ```
-    https://{domain}/mdb/{version}/{resource}
-    https://{domain}/mdb/{version}/{resource}/{resourceId}
-    https://{domain}/mdb/{version}/{resource}/{resourceId},{resourceId}
-    https://{domain}/mdb/{version}/{resource}/{resourceId}/relationships/{resource}
-    ```
-
-    All endpoints begin with <code>/mdb/{version}/</code>
-
+    ## Manufacturing Data Service (MDS) Access URLs
+    
     * Production URL: https://developer.api.autodesk.com/
     * Beta URL: https://developer-stg.api.autodesk.com/
+    
+    [@overview/mds-stages]
+    # MDS Stages
+    
+    There are following two stages for MDS:
 
-    Example:
-    <code>https://developer-stg.api.autodesk.com/mdb/v2/reviewableEntities</code>
+    * The first stage is to enable the Forge Schema and Forge Content service for users. The users will save their data in the cloud and be able to share it with external people. The users can fully control their content in libraries and also share the libraries only with the required users.
+    
+    * The second stage is registering the libraries into Manufacturing Data Service (MDS). The integration of Autodesk products with MDS provides a rich data in appropriate context and add manufacturing smart on top of it.
 
+    [@overivew/mds-workflow]
+    # MDS Workflow
 
-    # Headers
-    All api calls require the following headers:
+    The workflow of MDS platform contains the following stages:
+    
+    * **Build a rich source of data**: Create content using the core platform services built on Forge. This includes Forge Schema, Forge Content, Community, ACM, and File Upload service.
+    
+    * **MDS data unification**: Add the content to the global registry. MDS provides a global registry for storing the data related to materials, machines, tools and processes.
+    
+    * **Form builder and partner portal**: Build external facing forms for external partners. The internal teams can use the form builder application and build the forms. The external partners can use these forms to contribute to the Autodesk ecosystem, and also build custom material.
+    
+    * **Unit service to translate data**: Search or display the data in a required format. MDS provides a unit service to translate data between SI unit and any other unit so that customers can search or display data in their own format.
+    
+    ## Workflow to Add New Material
+    
+    * In Forge Schema, the administrator creates a new Content Schema for the material content.
+    * In Forge Content, the Library manager creates a new Library for the material. 
+    * The Content Author for the library adds new content and files in the library.
+    * The Content Author publishes the library with **lock** status true. This indicates that the material cannot be deleted once published, unless approved by the super administrator.
+    * The Library Manager contacts Manufacturing Data Service (MDS) team to register the material facet in a global material registry. The Library Manager uses the UX workflow to submit material to be added in the global registry.
+    * The MDS team validates the submitted facet and check if the matching material is already exists in the global registry.
+    	* If the material already exists, the facet is registered for the global material.
+    	* If the material does not exist, the new global material is created in Global registry and then this facet is attached to that material.
+    
+    [@overivew/library-management-for-mds]
+    # Library Management for MDS
 
-    * <b>Authorization</b>: `Bearer: <token>`<br>
-      A guest or member authorization token as provided by Forge Login workflow.
-      See Auth section on how to generate a guest/member token. Access to various API''s
-      depends on the token access levels.
-    * <b>Content-Type</b>: `application/vnd.api+json`<br>
-      Clients MUST send all `JSON API` data in request documents with the header
-      `Content-Type: application/vnd.api+json` without any media type parameters.
-    * <b>Accept</b>: `application/vnd.api+json`<br>
-      If not specified otherwise the response is also returned in a `JSON API` conformant
-      way. Exceptions might be returning the binary content of a file.
+    This topic explains how the content are managed in Forge Content and 
+    
+    Although, MDS allows Autodesk product teams to make their content accessible to their customers, each product team can independently manage their content in their own libraries without interacting with MDS. The product teams can create their content libraries using Forge Content service.
+    
+    Following are the types of libraries that the Autodesk product teams can create and register in the Global registry:
+    
+    * **Materials Library**: The library for managing the materials data. The product team creates this library to manage the data for different materials. The data can include various properties, specifications, and photos of the respective materials. For example, the materials used for 3D printing jobs.
+    
+    * **Machines Library**: The library for managing the machines data. The product team creates this library to manage the data for different machines. The data can include various properties, specifications, and images of the respective machines. For example, the machines or printers used for 3D printing jobs.
+    
+    * **Tools Library**: The library for managing the tools data. The product team creates this library to manage the data for different tools. The data can include various properties, specifications, and images of the respective tools. For example, the additional tools used for 3D printing jobs.
+    
+    * **Process Library**: The library for managing the processes data. The product team creates this library to manage the data for different processes. The data can include various properties, specifications, and images of the respective processes. For example, the processes followed for 3D printing jobs. 
+    
+    * **Solutions Library**: The library for managing the solutions data. The product team creates this library to manage the data for different industrial solutions. This data contains references to processes, materials, machines, test, and software information for the respective solutions.  For example, the solutions for creating models using 3D printing technology.
+    
+    **Note**: Before referencing any material or machine in a process and solution, ensure that the material and machine libraries are already registered in the global registry.
+    
+    ## Facets
+    
+    The Autodesk product teams that maintains their own libraries actually maintains the facets of each entity in the library. For example, if a product team providing the material rendering service maintains all rendering properties for the material. Similarly, the product team providing manufacturing services maintains the manufacturing properties for the material. 
+    
+    With this model, each product team gets the flexibility to maintain their facets independently from other product teams, but at the same time making the contents visible to all users.
+    
+    [@overview/mds-integration]
+    # Forge Contents Integration with MDS
 
-    #Error Objects
-    Error objects provide additional information about problems encountered while
-    performing an operation. Error objects MUST be returned as an array keyed by errors
-    in the top level of a JSON API document.
-
-    ```
-    {
-      "errors": [{
-        "status": "400 Bad Method",
-        "id": "a unique identifier for this particular occurrence of the problem",
-        "code": "10234",
-        "title": "Wrong Material ID",
-        "detail": "Material ID 15234523 does not exist in the database",
-      }]
-    }
-    ```
+    MDS provides a global registry to display the industrial resources data to internal and external people. The data can be for materials, machines, tools, processes, or solutions.
+    
+    MDS provides three levels of integration:
+    
+    * Adding schemas through Forge Schema service and content through Forge Content service.
+    
+    * Registering the data to MDS, which unbounds the data from the host app and gets it to all consuming apps.
+    
+    * Calling APIs to search different facets of data and pull the data provided by other applications.
+    
+    Before publishing your content in the global registry, you need to first create the content for your resources. You can use the Forge Content API service to create the content. With Forge Content API, you can organize your content in libraries and nodes and then decide on how you want to share your libraries with other users and collaborate with them for the contents. However, in Forge Content, the libraries are independent and users cannot share or collaborate the content across the libraries. 
+    
+    MDS in turn provides a platform by which users can get a combined view of the contents from different libraries created by different users.
+    
+    ## How Forge Contents Integration with MDS Works?
+    
+    Suppose there are two teams, TeamA and TeamB. Both the teams create separate library in their own account and name that library as Steel. They create a set of material in their own libraries. For both the teams, the material Steel is same with different facets that they maintained in two different libraries.
+    
+    TeamA provides all attributes related to the visual aspect of the material. For example, reflection index. TeamB provides all attributes related to the physical aspect of the same material. For example, young's modulus.
+    
+    Both the teams contact the MDS team to get their libraries registered in the global registry with global identifier as Steel. If the global registry does not contain the material Steel, it creates a new global identifier Steel.
+    
+    Now, MDS manages the facets from different libraries into a single global registry. MDS administrator creates the respective facets from two libraries and add the corresponding content under that facets.
+    
+    After registering the facets in the global registry, if any team, for example Team B, request the MDS team to update their library in the global registry for a new facet name, then MDS administrator checks if the global registry already contains the same facet name, and accordingly create a new facet name or update the existing facet name with changed values.
+    
+    **Note**: For changing the properties in an existing facet name, the MDS administrator might contact the library owner to confirm on the change request.
+    
+    MDS provides an extensive search API with different filter conditions. Using this API, you can retrieve the details the way you required. You can also perform the wild card searches, schema base searches, path base searches, title and description base searches.
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
 
 securityDefinitions:
   oauth2_access_code:
