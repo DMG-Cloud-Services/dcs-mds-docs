@@ -1092,7 +1092,8 @@ info:
       }
     }
     ```
-    [@overview/http]: <>
+    
+    [%http]: <>
     # HTTP Specification
     
     ## Reviewable Entities
