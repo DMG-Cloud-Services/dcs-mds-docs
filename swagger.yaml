@@ -1,7 +1,7 @@
 swagger: '2.0'
 
 info:
-  title: Manufacturing Data Service (MDS)
+  title: Manufacturing Data Service (MDS) API
   version: "2.0"
   description: |
     
@@ -1092,10 +1092,26 @@ info:
       }
     }
     ```
+    [@overview/http]: <>
+    # HTTP Specification
     
+    ## Reviewable Entities
     
+    The following are the supported endpoints and methods related to Reviewable Entities.
     
+    .. include:: ../../_snippets/v1/reference/reviewableentities.rst
     
+    ## Registry Entries
+    
+    The following are the supported endpoints and methods related to Registry Entries.
+    
+    .. include:: ../../_snippets/v1/reference/registryentries.rst
+    
+    ## Contents
+    
+    The following are the supported endpoints and methods related to Contents.
+    
+    include: ../../_snippets/v1/reference/contents.rst
     
 securityDefinitions:
   oauth2_access_code:
