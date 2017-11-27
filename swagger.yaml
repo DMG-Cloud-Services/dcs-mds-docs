@@ -1175,9 +1175,13 @@ paths:
         The API to create a reviewable entity.
         
         * Library MUST BE released to MDS clientId ([Mail to MDS](echo "mailto:forge.mdb@autodesk.com")) and entity MUST BE published before calling this API. For more information on for how to release a library, see [Forge Content documentation](https://developer-dev.autodesk.com/en/docs/content/v1/tutorials/).
+        
         * "status" has possible value PENDING and PRE_SUBMIT. If user just wants to categorize the content in global registry instead of submitting the content for review, "status" will be set to PRE_SUBMIT. You must set the "status" to PENDING when content is submitted and ready to be reviewed.
+        
         * "nodeName" is a list of node name showing the node hiarachy inside corresponding libraries. It's a comma separate list. If node does not exist, add node name in the list. For example, the content will be saved under MATERIAL global registry library -> node STEEL -> node SPECIFIC STEEL. "nodeName" will be set to "STEEL,SPECIFIC_STEEL". If the content will be saved under MATERIAL global registry library -> node STEEL -> node SPECIFIC STEEL, and need to add a new node NEW STEEL, "nodeName" will be set to "STEEL,SPECIFIC_STEEL,NEW_STEEL".
+        
         * "registryContentId" is set if the new material facetName will be added to an existing content in global registry.
+        
         * "contentName" is the name of registered content in global registry.
       
       parameters:
@@ -1239,11 +1243,16 @@ paths:
         Perform a search in the libraries registered in forge content for the facet name(s) specified in the query parameters.
         
         * The registry type identifies the global registries where to perform the search. At this time, we are supporting MATERIALS only.
+        
         * The facet name further narrow down the sets of data the client is interested in. The supported facets are additive and physical.
+        
         * If the extension.data section includes references of type customTypes:autodesk.core:reference-1.0.0, it is possible to include the referenced objects in the response under the included section when passing the query paramater
         include[contents]=references.<reference_name>. For example, include[contents]=references.machines, include[contents]=references.processes
+        
         * This API also supports complex queries when using the parameter filter[contents][query].
+        
         * "extension.data" can be replaced by "~" in query and filter parameter.
+        
         * This API supports unit conversion when filter[units][...] is passing. The result is converted into target units. This feature utilizes JSR 363 and adheres to UCUM standards for strict adherence to unit symbols. For example, when filter[units][postSizeAt15mmDeviation]=[in_i] is passed, in search result, postSizeAt15mmDeviation is returned in "inches" unit.
         
         UCUM Supported Units(https://github.com/unitsofmeasurement/uom-systems/blob/master/ucum-java8/src/main/java/systems/uom/ucum/UCUM.java).
