@@ -572,6 +572,7 @@ info:
         }
       }
     }' "https://developer.api.autodesk.com/mdb/v2/registryEntries"
+    ```
         
     The resource provides the following response:
     
@@ -1168,13 +1169,14 @@ paths:
     x-description: When entity is ready to be published, Library manager contacts MDS team (through a UX workflow to submit entity to be added to global registry) to register entity information in global registry. Then MDS team review multiple things and finally APPROVE or DENY entity to be reviewed.
     post:
       summary: Add entities for reviewing
-      description:
-          
-            <li>Library MUST BE released to MDS clientId (<a href="mailto:forge.mdb@autodesk.com" target="_top">Mail to MDS</a>) and entity MUST BE published before calling this API. Please refer <a href="http://docs.forgecontent.apiary.io/#reference/library/contentv1librarieslibraryid/patch">ForgeContent documentation</a> for how to release a library.</li><br>
-            <li>"status" has possible value PENDING and PRE_SUBMIT. If user just wants to categorize the content in global registry instead of submitting the content for review, "status" will be set to PRE_SUBMIT. "status" must be set to PENDING when content is submitted and ready to be reviewed.</li>
-            <li>"nodeName" is a list of node name showing the node hiarachy inside corresponding libraries. It's a comma separate list. If node doesn't not exist, add node name in the list. For example, the content will be saved under MATERIAL global registry library -> node STEEL -> node SPECIFIC STEEL. "nodeName" will be set to "STEEL,SPECIFIC_STEEL". If the content will be saved under MATERIAL global registry library -> node STEEL -> node SPECIFIC STEEL, and need to add a new node NEW STEEL, "nodeName" will be set to "STEEL,SPECIFIC_STEEL,NEW_STEEL". </li>
-            <li>"registryContentId" is set if the new material facetName will be added to an existing content in global registry.</li>
-            <li>"contentName" is the name of registered content in global registry.</li>
+      
+      description: |
+        
+        * Library MUST BE released to MDS clientId ([Mail to MDS](echo "mailto:forge.mdb@autodesk.com")) and entity MUST BE published before calling this API. For more information on for how to release a library, see [Forge Content documentation](https://developer-dev.autodesk.com/en/docs/content/v1/tutorials/).
+        * "status" has possible value PENDING and PRE_SUBMIT. If user just wants to categorize the content in global registry instead of submitting the content for review, "status" will be set to PRE_SUBMIT. "status" must be set to PENDING when content is submitted and ready to be reviewed.
+        * "nodeName" is a list of node name showing the node hiarachy inside corresponding libraries. It's a comma separate list. If node doesn't not exist, add node name in the list. For example, the content will be saved under MATERIAL global registry library -> node STEEL -> node SPECIFIC STEEL. "nodeName" will be set to "STEEL,SPECIFIC_STEEL". If the content will be saved under MATERIAL global registry library -> node STEEL -> node SPECIFIC STEEL, and need to add a new node NEW STEEL, "nodeName" will be set to "STEEL,SPECIFIC_STEEL,NEW_STEEL".
+        * "registryContentId" is set if the new material facetName will be added to an existing content in global registry.
+        * "contentName" is the name of registered content in global registry.
 
       parameters:
         - $ref: '#/parameters/reviewableEntitiesPostPayload'
