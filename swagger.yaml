@@ -1169,7 +1169,7 @@ paths:
     x-description: When entity is ready to be published, Library manager contacts MDS team (through a UX workflow to submit entity to be added to global registry) to register entity information in global registry. Then MDS team review multiple things and finally APPROVE or DENY entity to be reviewed.
     post:
       
-      description: 
+      description: |
       
         The API to create a reviewable entity.
         
@@ -1233,7 +1233,7 @@ paths:
     x-desription: Search library data of a given global registry type for the specified facet name(s)
     get:
       
-      description:  
+      description: |
       
         Perform a search in the libraries registered in forge content for the facet name(s) specified in the query parameters.
         
