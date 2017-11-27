@@ -1171,10 +1171,10 @@ paths:
       summary: Add entities for reviewing
       
       description: |
-        
+      
         * Library MUST BE released to MDS clientId ([Mail to MDS](echo "mailto:forge.mdb@autodesk.com")) and entity MUST BE published before calling this API. For more information on for how to release a library, see [Forge Content documentation](https://developer-dev.autodesk.com/en/docs/content/v1/tutorials/).
-        * "status" has possible value PENDING and PRE_SUBMIT. If user just wants to categorize the content in global registry instead of submitting the content for review, "status" will be set to PRE_SUBMIT. "status" must be set to PENDING when content is submitted and ready to be reviewed.
-        * "nodeName" is a list of node name showing the node hiarachy inside corresponding libraries. It's a comma separate list. If node doesn't not exist, add node name in the list. For example, the content will be saved under MATERIAL global registry library -> node STEEL -> node SPECIFIC STEEL. "nodeName" will be set to "STEEL,SPECIFIC_STEEL". If the content will be saved under MATERIAL global registry library -> node STEEL -> node SPECIFIC STEEL, and need to add a new node NEW STEEL, "nodeName" will be set to "STEEL,SPECIFIC_STEEL,NEW_STEEL".
+        * "status" has possible value PENDING and PRE_SUBMIT. If user just wants to categorize the content in global registry instead of submitting the content for review, "status" will be set to PRE_SUBMIT. You must set the "status" to PENDING when content is submitted and ready to be reviewed.
+        * "nodeName" is a list of node name showing the node hiarachy inside corresponding libraries. It's a comma separate list. If node does not exist, add node name in the list. For example, the content will be saved under MATERIAL global registry library -> node STEEL -> node SPECIFIC STEEL. "nodeName" will be set to "STEEL,SPECIFIC_STEEL". If the content will be saved under MATERIAL global registry library -> node STEEL -> node SPECIFIC STEEL, and need to add a new node NEW STEEL, "nodeName" will be set to "STEEL,SPECIFIC_STEEL,NEW_STEEL".
         * "registryContentId" is set if the new material facetName will be added to an existing content in global registry.
         * "contentName" is the name of registered content in global registry.
 
@@ -1187,10 +1187,9 @@ paths:
 
     put:
       summary:  Update status of entities which are queued for reviewing
+      
       description:
-          
-          <ul>
-            <li>This API is only for MDS admin.</li>
+          This API is only for MDS admin.
 
       parameters:
         - $ref: '#/parameters/reviewableEntitiesPutPayload'
@@ -1232,6 +1231,7 @@ paths:
     get:
       summary: Search Data
       description: |
+        
         Perform a search in the libraries registered in forge content for the facet name(s) specified in the query parameters
         
         * The registry type identifies the global registries where to perform the search. At this time, we are supporting MATERIALS only.
@@ -1289,9 +1289,7 @@ paths:
         ```
         /contents?filter[contents][extension.data.registryType]=MATERIALS&filter[contents][facetName]=physical&page[number]=1&page[size]=2
         ```
-
-
-
+        
       parameters:
         - $ref: '#/parameters/query_filter_contents_registry_type'
         - $ref: '#/parameters/query_filter_contents_facet_name'
