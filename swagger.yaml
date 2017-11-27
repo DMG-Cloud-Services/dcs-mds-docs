@@ -1168,9 +1168,7 @@ paths:
     x-summary: Reviewable Entities
     x-description: When entity is ready to be published, Library manager contacts MDS team (through a UX workflow to submit entity to be added to global registry) to register entity information in global registry. Then MDS team review multiple things and finally APPROVE or DENY entity to be reviewed.
     post:
-      
       description: |
-      
         The API to create a reviewable entity.
         
         * Library MUST BE released to MDS clientId ([Mail to MDS](mailto:forge.mdb@autodesk.com) and entity MUST BE published before calling this API. For more information on for how to release a library, see [Forge Content documentation](https://developer-dev.autodesk.com/en/docs/content/v1/tutorials/).
@@ -1191,7 +1189,6 @@ paths:
         [ { oauth2_access_code: [ 'data:write' ] }, { oauth2_implicit: [ 'data:write' ] },{ oauth2_application: [ 'data:write' ] } ]
 
     put:
-      
       description:
           Update status of entities which are queued for reviewing. This API is only for MDS admin.
 
