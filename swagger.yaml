@@ -1168,13 +1168,12 @@ paths:
     x-summary: Reviewable Entities
     x-description: When entity is ready to be published, Library manager contacts MDS team (through a UX workflow to submit entity to be added to global registry) to register entity information in global registry. Then MDS team review multiple things and finally APPROVE or DENY entity to be reviewed.
     post:
-      summary: Add entities for reviewing
       
-      description: 
+      description: |
       
         The API to create a reviewable entity.
         
-        * Library MUST BE released to MDS clientId ([Mail to MDS](echo "mailto:forge.mdb@autodesk.com")) and entity MUST BE published before calling this API. For more information on for how to release a library, see [Forge Content documentation](https://developer-dev.autodesk.com/en/docs/content/v1/tutorials/).
+        * Library MUST BE released to MDS clientId ([Mail to MDS](mailto:forge.mdb@autodesk.com) and entity MUST BE published before calling this API. For more information on for how to release a library, see [Forge Content documentation](https://developer-dev.autodesk.com/en/docs/content/v1/tutorials/).
         
         * "status" has possible value PENDING and PRE_SUBMIT. If user just wants to categorize the content in global registry instead of submitting the content for review, "status" will be set to PRE_SUBMIT. You must set the "status" to PENDING when content is submitted and ready to be reviewed.
         
@@ -1192,10 +1191,9 @@ paths:
         [ { oauth2_access_code: [ 'data:write' ] }, { oauth2_implicit: [ 'data:write' ] },{ oauth2_application: [ 'data:write' ] } ]
 
     put:
-      summary:  Update status of entities which are queued for reviewing
       
       description:
-          This API is only for MDS admin.
+          Update status of entities which are queued for reviewing. This API is only for MDS admin.
 
       parameters:
         - $ref: '#/parameters/reviewableEntitiesPutPayload'
@@ -1208,10 +1206,9 @@ paths:
     x-summary: Registry Entries
     x-description: (Internal use only) Registry admin add facet in global registry, or update global registry.
     post:
-      summary: Add new facet in global registry. If registry doesn't exist, create a new registry and add facet.
       description:
         
-        Registry admin adds facet in global registry.
+        Add new facet in global registry. If registry doesn't exist, create a new registry and add facet. Registry admin adds facet in global registry.
 
       parameters:
         - $ref: '#/parameters/registryPostPayload'
@@ -1221,9 +1218,8 @@ paths:
         [ { oauth2_access_code: [ 'data:create' ] }, { oauth2_implicit: [ 'data:create' ] },{ oauth2_application: [ 'data:create' ] } ]
       
     put:
-      summary: Update global registry
       description:
-        Registry admin updates global registry including facets. 
+        Updates the global registry. Registry admin updates global registry including facets. 
 
       parameters:
         - $ref: '#/parameters/registryPutPayload'
@@ -1236,9 +1232,8 @@ paths:
     x-summary: Search Data
     x-desription: Search library data of a given global registry type for the specified facet name(s)
     get:
-      summary: Search Data
       
-      description:
+      description: Perform a search in the libraries registered in forge content for the facet name(s) specified in the query parameters. |
       
         Perform a search in the libraries registered in forge content for the facet name(s) specified in the query parameters.
         
