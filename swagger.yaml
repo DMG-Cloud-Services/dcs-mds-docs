@@ -511,7 +511,7 @@ info:
     
     ### Example
     
-    ```
+    ```shell
     curl -X POST 
     -H "Authorization: Bearer 2wlSxqoUimJT3snKbaDg5HiV2Aam" 
     -H "Accept: application/vnd.api+json" 
