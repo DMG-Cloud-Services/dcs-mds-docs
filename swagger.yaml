@@ -66,6 +66,7 @@ info:
     2. Entity names are always plural for example, ``reviewableEntities``, ``registryEntries``
     3. Element names are camelCase for example, ``rootFolder``
     4. Most operations work with both 2 and 3 legged oauth keys. In case a 2 legged oauth key is used - some fields like userId may be empty (or use application name)
+    5. You need to specify the Schema inside the "data":"attributes":"schema" attribute of the POST request body. For more information, see JSON schema examples for extension types [here](en/docs/mds/_snippets/v1/examples).
         
     ## URL Syntax
 
