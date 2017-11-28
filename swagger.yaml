@@ -1106,7 +1106,7 @@ info:
     
     The following are the supported endpoints and methods related to Contents.
     
-    .. include: ../../_snippets/v1/reference/contents.rst
+    .. include:: ../../_snippets/v1/reference/contents.rst
     
 securityDefinitions:
   oauth2_access_code:
