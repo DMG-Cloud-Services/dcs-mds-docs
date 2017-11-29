@@ -62,9 +62,9 @@ info:
     |                   | If not specified otherwise, the response is also returned in a `JSON API` conformant way. Exceptions might be returning the binary content of a file.
     
     ## Standards
-    1. This API follows the ``JSON API`` specs 1.0 documented at `JSON API Spec <http://jsonapi.org/format/>`_
-    2. Entity names are always plural for example, ``reviewableEntities``, ``registryEntries``
-    3. Element names are camelCase for example, ``rootFolder``
+    1. This API follows the `JSON API` specs 1.0 documented at `JSON API Spec <http://jsonapi.org/format/>`_
+    2. Entity names are always plural for example, `reviewableEntities`, `registryEntries`
+    3. Element names are camelCase for example, `rootFolder`
     4. Most operations work with both 2 and 3 legged oauth keys. In case a 2 legged oauth key is used - some fields like userId may be empty (or use application name)
     5. You need to specify the Schema inside the "data":"attributes":"schema" attribute of the POST request body. For more information, see JSON schema examples for extension types [here](en/docs/mds/_snippets/v1/examples).
         
@@ -77,7 +77,7 @@ info:
     https://{domain}/mdb/{version}/{resource}/{resourceId}/relationships/{resource}
     ```
     All endpoints begin with <code>/mdb/{version}/</code>
-    For Example: ``https://developer.api.autodesk.com/mdb/v2/reviewableEntities``
+    For Example: `https://developer.api.autodesk.com/mdb/v2/reviewableEntities`
     
     ## API JSON Structure
     
@@ -291,7 +291,7 @@ info:
     
     In this step, you submit your content library to the MDS team either for a review or categorize it in the global registry. When the content library is ready to be published in the global registry, Library manager contacts MDS team for registering their library in the global registry. Then MDS team reviews the request for various aspects, and either approves or denies the request.
 
-    The MDS API provides the ``POST reviewableEntities`` endpoint that allows you to submit your entities to the MDS team for a review.
+    The MDS API provides the `POST reviewableEntities` endpoint that allows you to submit your entities to the MDS team for a review.
     
     **Note**: Before calling the POST request, you must ensure that your content library is already published in Forge Content service. For more information, see Forge Content documentation. You also need to send an email to MDS team to inform about releasing library to MDS. 
     
@@ -418,7 +418,7 @@ info:
     |                       | * The same entity details already present in the global registry.
     |                       | * The entity does not follow a valid schema or JSON format. 
         
-    The MDS API provides the ``PUT reviewableEntities`` endpoint that allows you to update the status.
+    The MDS API provides the `PUT reviewableEntities` endpoint that allows you to update the status.
 
     ### Example
 
@@ -499,7 +499,7 @@ info:
 
     **Note**: Only MDS administrator can add or update the entity in the Global registry.
     
-    The MDS API provides the ``POST registryEntries`` and ``PUT registryEntities`` endpoints that allows MDS administrator to add and update the entities to the Global registry. 
+    The MDS API provides the `POST registryEntries` and `PUT registryEntities` endpoints that allows MDS administrator to add and update the entities to the Global registry. 
     
     The POST and PUT request includes the attributes of the entity and the facets for your entity that you want to add or update to the Global registry.
     
@@ -632,7 +632,7 @@ info:
     
     This tutorial explains how to search the content in the Global Registry. You can search the contents registered in Global Registry for various facet names.
 
-    The MDS API provides the ``GET contents`` endpoint that allows you to search for the contents. In the API request, you can specify the filters conditions, based on which you want to search the contents. You can specify multiple filter conditions together.
+    The MDS API provides the `GET contents` endpoint that allows you to search for the contents. In the API request, you can specify the filters conditions, based on which you want to search the contents. You can specify multiple filter conditions together.
     
     You can also sort your search result in ascending and descending order. In the sort request, you have to specify the properties, such as created time, modified time, and property name by which you want to sort your result. With the properties, you have to specify the value **asc** for ascending sort order and **desc** for descending sort order.
     
@@ -642,17 +642,17 @@ info:
     | -------------------------------------------------  | ----------------------------------------------------------------------------
     | **filter[contents][extension.data.registryType]**  | Searches the content in the specified global registry.                       
     |                                                    | For example, MATERIALS and MACHINES.                                         
-    |                                                    | **Note**: While specifying this filter criteria, you can use **~** as the replacement for the term ``extension.data``.
-    |                                                    | For example: ``filter[contents][~.facets.physical.~.specificHeat.value]=41`` 
+    |                                                    | **Note**: While specifying this filter criteria, you can use **~** as the replacement for the term `extension.data`.
+    |                                                    | For example: filter[contents][~.facets.physical.~.specificHeat.value]=41` 
     | **filter[contents][facetName]**                    | Searches content for the specified facet names by which you have registered your content in the global registry.
     |                                                    | The facet name allows to narrow down the search for the data that you are interested in retrieving. 
     |                                                    | For example, the facet name **additive** returns the contents specific to additive manufacturing in case of MATERIALS Global Registry.
     | **include[contents]**                              | Searches the content based on the specified references.
-    |                                                    | For example, ``references.processes``, ``references.materials``, and ``references.machines``.
+    |                                                    | For example, `references.processes`, `references.materials`, and `references.machines`.
     |                                                    | If the **extension.data** section includes references of the custom types, for example, customTypes:autodesk.core:reference-1.0.0, you can specify the referenced objects in the filter condition.
-    |                                                    | For example: ``include[contents]=references.<reference_name>`` 
-    |                                                    | * ``include[contents]=references.machines``
-    |                                                    | * ``include[contents]=references.processes``
+    |                                                    | For example: `include[contents]=references.<reference_name>` 
+    |                                                    | * `include[contents]=references.machines`
+    |                                                    | * `include[contents]=references.processes`
     | **filter[contents][query]**                        | Searches the content based a custom query that you specify.                  
     |                                                    | In the query, you can include the logical and mathematical operators.        
     | **filter[units][]**                                |  Searches the content based on the units for a particular property in your content.
@@ -684,13 +684,13 @@ info:
     filter[contents][extension.data.registryType]=MATERIALS&filter[contents][facetName]=physical&filter[contents][extension.data.facets.physical.extension.data.specificHeat.value]=410
     ```
     
-    **Note**: While specifying the filter criteria, you can use ~ as the replacement for the term ``extension.data``.
+    **Note**: While specifying the filter criteria, you can use ~ as the replacement for the term `extension.data`.
     
     ``` 
     filter[contents][extension.data.registryType]=MATERIALS&filter[contents][facetName]=physical&filter[contents][~.facets.physical.~.specificHeat.value]=410
     ```
 
-    ### Using ``query`` filter
+    ### Using the query filter
     
     ```
     filter[contents][extension.data.registryType]=MATERIALS&filter[contents][facetName]=additive&filter[contents][query]=Molecule
@@ -704,19 +704,19 @@ info:
     filter[contents][extension.data.registryType]=MATERIALS&filter[contents][facetName]=additive&filter[contents][query]=(extension.data.facets.additive.extension.data.solution.flexuralStrength.testValue.min>1) AND (NOT extension.data.facets.additive.extension.data.solution.flexuralStrength.testValue.min<1) AND (extension.data.facets.additive.extension.data.solution.flexuralStrength.testValue.max<100) AND (NOT extension.data.facets.additive.extension.data.solution.flexuralStrength.testValue.max>100) 
     ```
     
-    ### Using ``units`` filter
+    ### Using the units filter
     
     ```
     filter[contents][extension.data.registryType]=MATERIALS&filter[contents][facetName]=additive&filter[units][temperature]=Cel&filter[units][youngsModulusCompression]=MPa&filter[units][materialBulkDensity]=g/cm3&filter[units][holeSizeAt5mmDeviation]=mm&filter[units][postSizeAt15mmDeviation]=[in_i]
     ```
     
-    ### Using ``include`` filter
+    ### Using the include filter
     
     ```
     filter[contents][extension.data.registryType]=MATERIALS&filter[contents][facetName]=additive&include[contents]=references.processes&include[contents]=references.machines
     ```
     
-    ### Using Pagination filter
+    ### Using the Pagination filter
     
     ```
     filter[contents][extension.data.registryType]=MATERIALS&filter[contents][facetName]=physical&page[number]=1&page[size]=2
@@ -1165,7 +1165,7 @@ paths:
       description: |
         The API to create a reviewable entity.
         
-        * Library MUST BE released to MDS clientId ([Mail to MDS](mailto:forge.mdb@autodesk.com) and entity MUST BE published before calling this API. For more information on for how to release a library, see [Forge Content documentation](https://developer-dev.autodesk.com/en/docs/content/v1/tutorials/).
+        * Library MUST BE released to MDS clientId ([Mail to MDS](mailto:forge.mdb@autodesk.com)) and entity MUST BE published before calling this API. For more information on for how to release a library, see [Forge Content documentation](https://developer-dev.autodesk.com/en/docs/content/v1/tutorials/).
         
         * "status" has possible value PENDING and PRE_SUBMIT. If user just wants to categorize the content in global registry instead of submitting the content for review, "status" will be set to PRE_SUBMIT. You must set the "status" to PENDING when content is submitted and ready to be reviewed.
         
